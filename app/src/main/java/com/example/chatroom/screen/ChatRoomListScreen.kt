@@ -21,6 +21,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,7 +33,8 @@ import com.example.chatroom.viewmodel.RoomViewModel
 
 @Composable
 fun ChatRoomListScreen(
-    roomViewModel: RoomViewModel = viewModel()
+    roomViewModel: RoomViewModel = viewModel(),
+    onJoinClicked: (Room) -> Unit,
 ) {
     val rooms by roomViewModel.rooms.observeAsState(emptyList())
     var isShowDialog by remember { mutableStateOf(false) }
@@ -51,7 +53,10 @@ fun ChatRoomListScreen(
         // Display a list of chat rooms
         LazyColumn {
             items(rooms) { room ->
-                RoomItem(room)
+                RoomItem(
+                    room = room,
+                    onJoinClicked = onJoinClicked,
+                )
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -104,28 +109,42 @@ fun ChatRoomListScreen(
 }
 
 @Composable
-fun RoomItem(room: Room) {
+fun RoomItem(
+    room: Room,
+    onJoinClicked: (Room) -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = room.name,
             fontSize = 16.sp,
             fontWeight = FontWeight.Normal,
         )
-        OutlinedButton(
-            onClick = {},
-        ) {
+        OutlinedButton(onClick = { onJoinClicked(room) }) {
             Text(text = "Join")
         }
     }
 }
 
+@Preview
+@Composable
+fun RoomItemPreview() {
+    RoomItem(
+        room = Room("id.com", "Name"),
+        onJoinClicked = {},
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun ChatRoomListPreview() {
-    ChatRoomListScreen()
+    ChatRoomListScreen(
+        roomViewModel = viewModel<RoomViewModel>(),
+        onJoinClicked = {},
+    )
 }

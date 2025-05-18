@@ -1,9 +1,10 @@
 package com.example.chatroom
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -15,17 +16,23 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.chatroom.screen.ChatRoomListScreen
+import com.example.chatroom.screen.ChatScreen
 import com.example.chatroom.screen.LoginScreen
 import com.example.chatroom.screen.Screen
 import com.example.chatroom.screen.SignUpScreen
 import com.example.chatroom.ui.theme.ChatroomTheme
 import com.example.chatroom.viewmodel.AuthViewModel
+import com.example.chatroom.viewmodel.MessageViewModel
+import com.example.chatroom.viewmodel.RoomViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val authViewModel: AuthViewModel = viewModel()
+            val roomViewModel: RoomViewModel = viewModel()
+            val messageViewModel: MessageViewModel = viewModel()
             val navController = rememberNavController()
             ChatroomTheme {
                 Surface(
@@ -34,6 +41,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavigationGraph(
                         authViewModel = authViewModel,
+                        roomViewModel = roomViewModel,
+                        messageViewModel = messageViewModel,
                         navController = navController,
                     )
                 }
@@ -42,9 +51,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavigationGraph(
-    authViewModel: AuthViewModel,
+    authViewModel: AuthViewModel, roomViewModel: RoomViewModel, messageViewModel: MessageViewModel,
     navController: NavHostController
 ) {
     NavHost(
@@ -63,9 +73,20 @@ fun NavigationGraph(
                 onSignInSuccess = { navController.navigate(Screen.ChatRoomsScreen.route) },
             )
         }
-
         composable(Screen.ChatRoomsScreen.route) {
-            ChatRoomListScreen()
+            ChatRoomListScreen(
+                roomViewModel = roomViewModel,
+                onJoinClicked = { room ->
+                    navController.navigate("${Screen.ChatScreen.route}/${room.id}")
+                },
+            )
+        }
+        composable("${Screen.ChatScreen.route}/{roomId}") {
+            val roomId: String = it.arguments?.getString("roomId") ?: ""
+            ChatScreen(
+                roomId = roomId,
+                messageViewModel = messageViewModel,
+            )
         }
     }
 }
