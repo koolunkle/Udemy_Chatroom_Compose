@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.chatroom.screen.ChatRoomListScreen
 import com.example.chatroom.screen.LoginScreen
 import com.example.chatroom.screen.Screen
 import com.example.chatroom.screen.SignUpScreen
@@ -23,7 +24,6 @@ import com.example.chatroom.viewmodel.AuthViewModel
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             val authViewModel: AuthViewModel = viewModel()
             val navController = rememberNavController()
@@ -62,6 +62,10 @@ fun NavigationGraph(
                 onNavigateToSignUp = { navController.navigate(Screen.SignupScreen.route) },
                 onSignInSuccess = { navController.navigate(Screen.ChatRoomsScreen.route) },
             )
+        }
+
+        composable(Screen.ChatRoomsScreen.route) {
+            ChatRoomListScreen()
         }
     }
 }
